@@ -1,0 +1,9 @@
+---
+- name: Add overclock settings to /boot/config.txt
+  become: true
+  lineinfile:
+    path: /boot/config.txt
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items: "{{ overclock_options }}"
+  notify: "reboot required"

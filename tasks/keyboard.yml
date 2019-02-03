@@ -1,0 +1,10 @@
+---
+- name: set keyboard model and layout
+  become: yes
+  template: src=../templates/keyboard dest=/etc/default/keyboard
+  register: default_keyboard
+
+- name: dpkg-reconfigure keyboard-configuration
+  become: yes
+  command: dpkg-reconfigure -f noninteractive keyboard-configuration
+  when: default_keyboard is changed

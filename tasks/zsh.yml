@@ -1,0 +1,22 @@
+---
+- name: Fetch oh-my-zsh
+  git:
+    repo: https://github.com/robbyrussell/oh-my-zsh
+    dest: ~/.oh-my-zsh
+
+- name: Check if .zshrc exists
+  stat:
+    path: ~/.zshrc
+  register: zshrc_path
+
+- name: Creating new zshrc
+  copy:
+    src: ~/.oh-my-zsh/templates/zshrc.zsh-template
+    dest: ~/.zshrc
+  when: not zshrc_path.stat.exists
+
+- name: Set Z shell as default shell
+  become: yes
+  user:
+    name: "{{ ansible_ssh_user }}"
+    shell: /usr/bin/zsh

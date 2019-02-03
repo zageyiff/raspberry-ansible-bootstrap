@@ -1,0 +1,35 @@
+---
+- name: Add docker apt key
+  become: yes
+  apt_key:
+    url: https://download.docker.com/linux/raspbian/gpg
+    id: 0EBFCD88
+
+- name: Add docker repository
+  become: yes
+  apt_repository:
+    repo: "deb [arch=armhf] https://download.docker.com/linux/raspbian stretch edge"
+    update_cache: true
+
+- name: Install docker
+  become: yes
+  package:
+    name: docker-ce
+
+- name: Install docker-compose
+  pip:
+    name: docker-compose
+    state: latest
+
+- name: Ensure docker users are added to the docker group
+  become: yes
+  user:
+    name: "{{ ansible_ssh_user }}"
+    groups: docker
+    append: true
+
+- name: Add pip binaries (docker-compose) in PATH
+  lineinfile:
+    path: ~/.zshrc
+    regexp: '^PATH='
+    line: 'PATH=$PATH:/home/pi/.local/bin'

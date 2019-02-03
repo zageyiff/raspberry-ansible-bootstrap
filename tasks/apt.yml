@@ -1,0 +1,12 @@
+# Upgrade apt packages
+- name: Upgrade apt packages
+  become: yes
+  apt:
+    upgrade: dist
+
+- name: Install apt packages
+  become: yes
+  apt:
+    name: "{{ apt_packages }}"
+    state: latest
+    update_cache: yes  # apt-get update

@@ -1,0 +1,41 @@
+# mount external hard drive
+
+# create group to allow permission on mount directory
+- name: Create group insignia
+  become: yes
+  group:
+    name: insignia
+    state: present
+
+- name: Add user pi to group insignia
+  become: yes
+  user:
+    name: "{{ ansible_ssh_user }}"
+    groups: insignia
+    append: yes
+
+# create directory for mount point with sticky bit (to preserve group owner)
+- name: Create dir insignia-ext with sticky bit
+  become: yes
+  file:
+    path: /mnt/insignia-ext
+    owner: pi
+    group: insignia
+    mode: ug=rwx,o=rx,g+s
+    state: directory
+
+# moutn externak drive
+- name: Mount up device in insignia-ext directory
+  become: yes
+  mount:
+    src: UUID=72bbe9ef-e12d-456e-81a5-3f17550d7199
+    path: /mnt/insignia-ext
+    fstype: ext4
+    opts: defaults
+    state: mounted
+
+- name: home dir symlink to mount dir
+  file:
+    src: /mnt/insignia-ext
+    dest: /home/pi/insignia
+    state: link

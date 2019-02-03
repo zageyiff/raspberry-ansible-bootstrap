@@ -1,0 +1,93 @@
+# export ANSIBLE_INVENTORY=$(readlink -f hosts)
+# ansible-playbook playbooks/raspi-bootstrap.yml
+
+---
+- hosts: raspberry
+  gather_facts: yes
+
+  vars:
+    hostname: raspi
+
+    keyboard: "pc105"
+    keyboard_layout: "us"
+
+    timezone: "America/New_York"
+
+    locale: "en_US.UTF-8"
+    locale_options:
+    # Disable Default (GB) Locale
+    - regexp: '^ ?en_GB.UTF-8 UTF-8'
+      line: '# en_GB.UTF-8 UTF-8'
+    # Enable US Locale
+    - regexp: '^# ?en_US.UTF-8 UTF-8'
+      line: 'en_US.UTF-8 UTF-8'
+
+    overclock_options:
+    - regexp: '^arm_freq='
+      line: 'arm_freq=1350'
+    - regexp: '^core_freq='
+      line: 'core_freq=500'
+    - regexp: '^over_voltage='
+      line: 'over_voltage=4'
+    - regexp: '^force_turbo='
+      line: 'force_turbo=1   #Voids Warranty! (uncomment to avoid CPU scaling down to 600Mhz)'
+    - regexp: '^boot_delay='
+      line: 'boot_delay=1   #helps to avoid sdcard corruption when force_turbo is enabled.'
+    - regexp: '^gpu_mem='
+      line: 'gpu_mem=16   # Web server, wireless access point, firewall, weather station, etc'
+
+    apt_packages:
+    # Z shell
+    - git
+    - zsh
+    # docker pre requisites
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    # docker-compose pre requisites
+    - python-pip
+    - python-setuptools
+
+
+  tasks:
+
+  - import_tasks: ../tasks/expand-rootfs.yml
+    tags: [setup, expand-rootfs]
+
+  - import_tasks: ../tasks/overclock.yml
+    tags: [setup, overclock]
+
+  # expand-rootfs and overclock might notify reboot topics
+  - meta: flush_handlers
+
+  - import_tasks: ../tasks/hostname.yml
+    tags: [setup, hostname]
+
+  - import_tasks: ../tasks/timezone.yml
+    tags: [setup, timezone]
+
+  - import_tasks: ../tasks/locale.yml
+    tags: [setup, locale]
+
+  - import_tasks: ../tasks/keyboard.yml
+    tags: [setup, keyboard]
+
+  - import_tasks: ../tasks/mount-hdd.yml
+    tags: [setup, mount-hdd]
+
+  - import_tasks: ../tasks/apt.yml
+    tags: [setup, apt]
+
+  - import_tasks: ../tasks/zsh.yml
+    tags: [setup, zsh]
+
+  - import_tasks: ../tasks/docker.yml
+    tags: [setup, docker]
+
+  # zsh default shell
+
+  handlers:
+
+  # Set Internationalization Options
+  - import_tasks: ../handlers/handlers.yml
+
