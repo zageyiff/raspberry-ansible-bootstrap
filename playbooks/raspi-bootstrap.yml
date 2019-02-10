@@ -35,6 +35,11 @@
       line: 'boot_delay=1   #helps to avoid sdcard corruption when force_turbo is enabled.'
     - regexp: '^gpu_mem='
       line: 'gpu_mem=16   # Web server, wireless access point, firewall, weather station, etc'
+      # disable wifi and bluetooth
+    - regexp: '^dtoverlay=pi3-disable-wifi'
+      line: 'dtoverlay=pi3-disable-wifi'
+    - regexp: '^dtoverlay=pi3-disable-bt'
+      line: 'dtoverlay=pi3-disable-bt'
 
     apt_packages:
     # Z shell
@@ -47,6 +52,9 @@
     # docker-compose pre requisites
     - python-pip
     - python-setuptools
+    # utilities
+    - tree
+    - jq
 
 
   tasks:
@@ -84,10 +92,9 @@
   - import_tasks: ../tasks/docker.yml
     tags: [setup, docker]
 
-  # zsh default shell
+  # TODO compile mediainfo form sources
 
   handlers:
 
-  # Set Internationalization Options
   - import_tasks: ../handlers/handlers.yml
 
