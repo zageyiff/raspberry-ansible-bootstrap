@@ -15,27 +15,28 @@
     append: yes
 
 # create directory for mount point with sticky bit (to preserve group owner)
-- name: Create dir insignia-ext with sticky bit
+- name: Create dir wd-my-book with sticky bit
   become: yes
   file:
-    path: /mnt/insignia-ext
+    path: /mnt/wd-my-book
     owner: pi
     group: insignia
     mode: ug=rwx,o=rx,g+s
     state: directory
 
-# moutn externak drive
-- name: Mount up device in insignia-ext directory
+# mount external drive
+- name: Mount up device in wd-my-book directory
   become: yes
   mount:
-    src: UUID=72bbe9ef-e12d-456e-81a5-3f17550d7199
-    path: /mnt/insignia-ext
+    # TODO parameterize uuid, find with sudo blkid
+    src: UUID=c76b2505-13cb-43d4-9096-bd5118afe677
+    path: /mnt/wd-my-book
     fstype: ext4
     opts: defaults
     state: mounted
 
 - name: home dir symlink to mount dir
   file:
-    src: /mnt/insignia-ext
+    src: /mnt/wd-my-book
     dest: /home/pi/insignia
     state: link

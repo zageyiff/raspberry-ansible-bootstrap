@@ -8,6 +8,8 @@
 - name: Add docker repository
   become: yes
   apt_repository:
+    filename: docker
+    # TODO only stretch available, update to buster once released
     repo: "deb [arch=armhf] https://download.docker.com/linux/raspbian stretch edge"
     update_cache: true
 
@@ -15,11 +17,15 @@
   become: yes
   package:
     name: docker-ce
+    # aufs-dkms is not a dependency of docker-ce, when install recommended fails in debian buster
+    # https://github.com/raspberrypi/linux/issues/3021
+    install_recommends: no
 
 - name: Install docker-compose
   pip:
     name: docker-compose
     state: latest
+    executable: pip3
 
 - name: Ensure docker users are added to the docker group
   become: yes

@@ -1,3 +1,2 @@
----
 [raspberry]
 raspi ansible_host=raspi ansible_user=pi
